@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.PaishexuantuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.paishexiangmu_id as paishexiangmuId
+        ,a.paishexuantu_photo as paishexuantuPhoto
+        ,a.paishexuantu_types as paishexuantuTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.PaishexuantuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,paishexiangmu.paisheyuding_order_uuid_number as paisheyudingOrderUuidNumber
+        ,paishexiangmu.paishexiangmu_types as paishexiangmuTypes
+        ,paishexiangmu.paisheyuding_time as paisheyudingTime
+        ,paishexiangmu.paishexiangmu_number as paishexiangmuNumber
+        ,paishexiangmu.paisheyuding_order_types as paisheyudingOrderTypes
+        ,paishexiangmu.yonghu_id as paishexiangmuYonghuId
+
+        FROM paishexuantu  a
+        left JOIN paishexiangmu paishexiangmu ON a.paishexiangmu_id = paishexiangmu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.paishexiangmuId != null and params.paishexiangmuId != ''">
+                and (
+                    a.paishexiangmu_id = #{params.paishexiangmuId}
+                )
+            </if>
+            <if test="params.paishexuantuTypes != null and params.paishexuantuTypes != ''">
+                and a.paishexuantu_types = #{params.paishexuantuTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断拍摄预定的id不为空 -->
+            <if test=" params.paishexiangmuIdNotNull != '' and params.paishexiangmuIdNotNull != null and params.paishexiangmuIdNotNull != 'null' ">
+                and a.paishexiangmu_id IS NOT NULL
+            </if>
+            <if test=" params.paisheyudingOrderUuidNumber != '' and params.paisheyudingOrderUuidNumber != null and params.paisheyudingOrderUuidNumber != 'null' ">
+                and paishexiangmu.paisheyuding_order_uuid_number like CONCAT('%',#{params.paisheyudingOrderUuidNumber},'%')
+            </if>
+            <if test="params.paishexiangmuTypes != null  and params.paishexiangmuTypes != ''">
+                and paishexiangmu.paishexiangmu_types = #{params.paishexiangmuTypes}
+            </if>
+
+            <if test=" params.paisheyudingTimeStart != '' and params.paisheyudingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(paishexiangmu.paisheyuding_time) >= UNIX_TIMESTAMP(#{params.paisheyudingTimeStart}) ]]>
+            </if>
+            <if test=" params.paisheyudingTimeEnd != '' and params.paisheyudingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(paishexiangmu.paisheyuding_time) <= UNIX_TIMESTAMP(#{params.paisheyudingTimeEnd}) ]]>
+            </if>
+            <if test="params.paishexiangmuNumberStart != null ">
+                <![CDATA[  and paishexiangmu.paishexiangmu_number >= #{params.paishexiangmuNumberStart}   ]]>
+            </if>
+            <if test="params.paishexiangmuNumberEnd != null ">
+                <![CDATA[  and paishexiangmu.paishexiangmu_number <= #{params.paishexiangmuNumberEnd}   ]]>
+            </if>
+            <if test="params.paisheyudingOrderTypes != null  and params.paisheyudingOrderTypes != ''">
+                and paishexiangmu.paisheyuding_order_types = #{params.paisheyudingOrderTypes}
+            </if>
+
+            <if test="params.yonghuId != null  and params.yonghuId != ''">
+                and paishexiangmu.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(paishexiangmu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(paishexiangmu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

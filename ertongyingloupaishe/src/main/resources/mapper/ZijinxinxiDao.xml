@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZijinxinxiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zijinxinxi_name as zijinxinxiName
+        ,a.zijinxinxi_number as zijinxinxiNumber
+        ,a.zijinxinxi_types as zijinxinxiTypes
+        ,a.zijinxinxi_text as zijinxinxiText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZijinxinxiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM zijinxinxi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.zijinxinxiName != '' and params.zijinxinxiName != null and params.zijinxinxiName != 'null' ">
+                and a.zijinxinxi_name like CONCAT('%',#{params.zijinxinxiName},'%')
+            </if>
+            <if test="params.zijinxinxiNumberStart != null ">
+                <![CDATA[  and a.zijinxinxi_number >= #{params.zijinxinxiNumberStart}   ]]>
+            </if>
+            <if test="params.zijinxinxiNumberEnd != null ">
+                <![CDATA[  and a.zijinxinxi_number <= #{params.zijinxinxiNumberEnd}   ]]>
+            </if>
+            <if test="params.zijinxinxiTypes != null and params.zijinxinxiTypes != ''">
+                and a.zijinxinxi_types = #{params.zijinxinxiTypes}
+            </if>
+            <if test=" params.zijinxinxiText != '' and params.zijinxinxiText != null and params.zijinxinxiText != 'null' ">
+                and a.zijinxinxi_text like CONCAT('%',#{params.zijinxinxiText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

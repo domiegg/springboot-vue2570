@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FuzhuangshipinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fuzhuangshipin_uuid_number as fuzhuangshipinUuidNumber
+        ,a.fuzhuangshipin_name as fuzhuangshipinName
+        ,a.fuzhuangshipin_photo as fuzhuangshipinPhoto
+        ,a.fuzhuangshipin_types as fuzhuangshipinTypes
+        ,a.fuzhuangshipin_new_money as fuzhuangshipinNewMoney
+        ,a.fuzhuangshipin_content as fuzhuangshipinContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FuzhuangshipinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM fuzhuangshipin  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.fuzhuangshipinUuidNumber != '' and params.fuzhuangshipinUuidNumber != null and params.fuzhuangshipinUuidNumber != 'null' ">
+                and a.fuzhuangshipin_uuid_number like CONCAT('%',#{params.fuzhuangshipinUuidNumber},'%')
+            </if>
+            <if test=" params.fuzhuangshipinName != '' and params.fuzhuangshipinName != null and params.fuzhuangshipinName != 'null' ">
+                and a.fuzhuangshipin_name like CONCAT('%',#{params.fuzhuangshipinName},'%')
+            </if>
+            <if test="params.fuzhuangshipinTypes != null and params.fuzhuangshipinTypes != ''">
+                and a.fuzhuangshipin_types = #{params.fuzhuangshipinTypes}
+            </if>
+            <if test="params.fuzhuangshipinNewMoneyStart != null ">
+                <![CDATA[  and a.fuzhuangshipin_new_money >= #{params.fuzhuangshipinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.fuzhuangshipinNewMoneyEnd != null ">
+                <![CDATA[  and a.fuzhuangshipin_new_money <= #{params.fuzhuangshipinNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.fuzhuangshipinContent != '' and params.fuzhuangshipinContent != null and params.fuzhuangshipinContent != 'null' ">
+                and a.fuzhuangshipin_content like CONCAT('%',#{params.fuzhuangshipinContent},'%')
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
